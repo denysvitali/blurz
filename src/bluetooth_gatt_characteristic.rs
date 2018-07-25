@@ -2,6 +2,7 @@ use dbus::{Connection, BusType, Message, MessageItem, MessageItemArray, Signatur
 use bluetooth_utils;
 
 use std::error::Error;
+use dbus::OwnedFd;
 
 static SERVICE_NAME: &'static str = "org.bluez";
 static GATT_CHARACTERISTIC_INTERFACE: &'static str = "org.bluez.GattCharacteristic1";
@@ -140,5 +141,20 @@ impl BluetoothGATTCharacteristic {
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/gatt-api.txt#n105
     pub fn stop_notify(&self) -> Result<(), Box<Error>> {
         self.call_method("StopNotify", None)
+    }
+
+    pub fn acquire_notify<F>(&self, func: F) -> Result<(), Box<Error>>
+        where F: FnOnce(u16, OwnedFd) {
+        let c = Connection::get_private(BusType::System)?;
+        let m = Message::new_method_call(
+            SERVICE_NAME,
+            &self.object_path,
+            GATT_CHARACTERISTIC_INTERFACE,
+            "AcquireNotify"
+        )?;
+        let reply = c.send_with_reply_and_block(m, 1000)?;
+        let (opt_fd, opt_mtu) = reply.get2::<OwnedFd, u16>();
+        func(opt_mtu.unwrap(), opt_fd.unwrap());
+        Ok(())
     }
 }

@@ -15,3 +15,7 @@ path = "src/lib.rs"
 [dependencies]
 dbus = "0.6"
 hex = "0.3"
+
+[dev-dependencies]
+libc = "0.2.42"
+failure="0.1.1"
