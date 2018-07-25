@@ -145,12 +145,19 @@ impl BluetoothGATTCharacteristic {
     pub fn acquire_notify<F>(&self, func: F) -> Result<(), Box<Error>>
         where F: FnOnce(u16, OwnedFd) {
         let c = Connection::get_private(BusType::System)?;
-        let m = Message::new_method_call(
+        let mut m = Message::new_method_call(
             SERVICE_NAME,
             &self.object_path,
             GATT_CHARACTERISTIC_INTERFACE,
             "AcquireNotify"
         )?;
+        m.append_items(&[
+            MessageItem::Array(
+                MessageItemArray::new(
+                    vec![], Signature::from("a{sv}")
+                ).unwrap()
+            )
+        ]);
         let reply = c.send_with_reply_and_block(m, 1000)?;
         let (opt_fd, opt_mtu) = reply.get2::<OwnedFd, u16>();
         func(opt_mtu.ok_or_else(|| "no MTU")?,
