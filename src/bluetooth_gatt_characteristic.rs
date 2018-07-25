@@ -153,7 +153,8 @@ impl BluetoothGATTCharacteristic {
         )?;
         let reply = c.send_with_reply_and_block(m, 1000)?;
         let (opt_fd, opt_mtu) = reply.get2::<OwnedFd, u16>();
-        func(opt_mtu.unwrap(), opt_fd.unwrap());
+        func(opt_mtu.ok_or_else(|| "no MTU")?,
+             opt_fd.ok_or_else(|| "no file descriptor")?);
         Ok(())
     }
 
