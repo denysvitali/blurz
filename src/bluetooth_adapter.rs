@@ -19,7 +19,7 @@ impl BluetoothAdapter {
     }
 
     pub fn init() -> Result<BluetoothAdapter, Box<Error>> {
-        let adapters = try!(bluetooth_utils::get_adapters());
+        let adapters = bluetooth_utils::get_adapters()?;
 
         if adapters.is_empty() {
             return Err(Box::from("Bluetooth adapter not found"))
@@ -29,7 +29,7 @@ impl BluetoothAdapter {
     }
 
     pub fn create_adapter(object_path: String) -> Result<BluetoothAdapter, Box<Error>> {
-        let adapters = try!(bluetooth_utils::get_adapters());
+        let adapters = bluetooth_utils::get_adapters()?;
 
         for adapter in adapters {
             if adapter == object_path {
@@ -44,7 +44,7 @@ impl BluetoothAdapter {
     }
 
     pub fn get_first_device(&self) -> Result<BluetoothDevice, Box<Error>> {
-        let devices = try!(bluetooth_utils::list_devices(&self.object_path));
+        let devices = bluetooth_utils::list_devices(&self.object_path)?;
 
         if devices.is_empty() {
             return Err(Box::from("No device found."))
@@ -75,19 +75,19 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n108
     pub fn get_address(&self) -> Result<String, Box<Error>> {
-        let address = try!(self.get_property("Address"));
+        let address = self.get_property("Address")?;
         Ok(String::from(address.inner::<&str>().unwrap()))
     }
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n112
     pub fn get_name(&self) -> Result<String, Box<Error>> {
-        let name = try!(self.get_property("Name"));
+        let name = self.get_property("Name")?;
         Ok(String::from(name.inner::<&str>().unwrap()))
     }
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n120
     pub fn get_alias(&self) -> Result<String, Box<Error>> {
-        let alias = try!(self.get_property("Alias"));
+        let alias = self.get_property("Alias")?;
         Ok(String::from(alias.inner::<&str>().unwrap()))
     }
 
@@ -98,13 +98,13 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n139
     pub fn get_class(&self) -> Result<u32, Box<Error>> {
-        let class = try!(self.get_property("Class"));
+        let class = self.get_property("Class")?;
         Ok(class.inner::<u32>().unwrap())
     }
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n147
     pub fn is_powered(&self) -> Result<bool, Box<Error>> {
-        let powered = try!(self.get_property("Powered"));
+        let powered = self.get_property("Powered")?;
         Ok(powered.inner::<bool>().unwrap())
     }
 
@@ -115,7 +115,7 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n156
     pub fn is_discoverable(&self) -> Result<bool, Box<Error>> {
-        let discoverable = try!(self.get_property("Discoverable"));
+        let discoverable = self.get_property("Discoverable")?;
         Ok(discoverable.inner::<bool>().unwrap())
     }
 
@@ -126,7 +126,7 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n176
     pub fn is_pairable(&self) -> Result<bool, Box<Error>> {
-        let pairable = try!(self.get_property("Pairable"));
+        let pairable = self.get_property("Pairable")?;
         Ok(pairable.inner::<bool>().unwrap())
     }
 
@@ -137,7 +137,7 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n187
     pub fn get_pairable_timeout(&self) -> Result<u32, Box<Error>> {
-        let pairable_timeout = try!(self.get_property("PairableTimeout"));
+        let pairable_timeout = self.get_property("PairableTimeout")?;
         Ok(pairable_timeout.inner::<u32>().unwrap())
     }
 
@@ -148,7 +148,7 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n196
     pub fn get_discoverable_timeout(&self) -> Result<u32, Box<Error>> {
-        let discoverable_timeout = try!(self.get_property("DiscoverableTimeout"));
+        let discoverable_timeout = self.get_property("DiscoverableTimeout")?;
         Ok(discoverable_timeout.inner::<u32>().unwrap())
     }
 
@@ -159,13 +159,13 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n205
     pub fn is_discovering(&self) -> Result<bool, Box<Error>> {
-        let discovering = try!(self.get_property("Discovering"));
+        let discovering = self.get_property("Discovering")?;
         Ok(discovering.inner::<bool>().unwrap())
     }
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n209
     pub fn get_uuids(&self) -> Result<Vec<String>, Box<Error>> {
-        let uuids = try!(self.get_property("UUIDs"));
+        let uuids = self.get_property("UUIDs")?;
         let z: &[MessageItem] = uuids.inner().unwrap();
         let mut v: Vec<String> = Vec::new();
         for y in z {
@@ -176,7 +176,7 @@ impl BluetoothAdapter {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/adapter-api.txt#n215
     pub fn get_modalias(&self) ->  Result<(String, u32, u32, u32), Box<Error>> {
-        let modalias = try!(self.get_property("Modalias"));
+        let modalias = self.get_property("Modalias")?;
         let m = modalias.inner::<&str>().unwrap();
         let ids: Vec<&str> = m.split(":").collect();
 
@@ -192,22 +192,22 @@ impl BluetoothAdapter {
     }
 
     pub fn get_vendor_id_source(&self) -> Result<String, Box<Error>> {
-        let (vendor_id_source,_,_,_) = try!(self.get_modalias());
+        let (vendor_id_source,_,_,_) = self.get_modalias()?;
         Ok(vendor_id_source)
     }
 
     pub fn get_vendor_id(&self) -> Result<u32, Box<Error>> {
-        let (_,vendor_id,_,_) = try!(self.get_modalias());
+        let (_,vendor_id,_,_) = self.get_modalias()?;
         Ok(vendor_id)
     }
 
     pub fn get_product_id(&self) -> Result<u32, Box<Error>> {
-        let (_,_,product_id,_) = try!(self.get_modalias());
+        let (_,_,product_id,_) = self.get_modalias()?;
         Ok(product_id)
     }
 
     pub fn get_device_id(&self) -> Result<u32, Box<Error>> {
-        let (_,_,_,device_id) = try!(self.get_modalias());
+        let (_,_,_,device_id) = self.get_modalias()?;
         Ok(device_id)
     }
 

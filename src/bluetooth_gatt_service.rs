@@ -11,10 +11,9 @@ pub struct BluetoothGATTService {
 }
 
 impl BluetoothGATTService {
-    pub fn new(object_path: String)
-           -> BluetoothGATTService {
+    pub fn new(object_path: String) -> BluetoothGATTService {
         BluetoothGATTService {
-            object_path: object_path
+            object_path
         }
     }
 
@@ -32,13 +31,13 @@ impl BluetoothGATTService {
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/gatt-api.txt#n33
     pub fn get_uuid(&self) -> Result<String, Box<Error>> {
-        let uuid = try!(self.get_property("UUID"));
+        let uuid = self.get_property("UUID")?;
         Ok(String::from(uuid.inner::<&str>().unwrap()))
     }
 
     // http://git.kernel.org/cgit/bluetooth/bluez.git/tree/doc/gatt-api.txt#n37
     pub fn is_primary(&self) -> Result<bool, Box<Error>> {
-        let primary = try!(self.get_property("Primary"));
+        let primary = self.get_property("Primary")?;
         Ok(primary.inner::<bool>().unwrap())
     }
 

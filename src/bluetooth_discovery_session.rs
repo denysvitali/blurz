@@ -24,12 +24,12 @@ impl BluetoothDiscoverySession {
     }
 
     fn call_method(&self, method: &str, param: Option<[MessageItem; 1]>) -> Result<(), Box<Error>> {
-        let mut m = try!(Message::new_method_call(SERVICE_NAME, &self.adapter, ADAPTER_INTERFACE, method));
+        let mut m = Message::new_method_call(SERVICE_NAME, &self.adapter, ADAPTER_INTERFACE, method)?;
         match param {
             Some(p) => m.append_items(&p),
             None => (),
         };
-        try!(self.connection.send_with_reply_and_block(m, 1000));
+        self.connection.send_with_reply_and_block(m, 1000)?;
         Ok(())
     }
 
